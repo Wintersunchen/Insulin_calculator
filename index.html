@@ -68,6 +68,216 @@
 </div>
 
 <script>
-    // 試算表完整資料庫 (共120項)
+    // 移除了文字中的所有換行符號，避免 JavaScript 錯誤
+    const rawFoodList = [
+        {"name": "油脂+蛋白質(2小時後加打) (係數 0.3)", "val": 0.3, "type": "ratio"},
+        {"name": "玉米一條 (根)", "val": 22.5, "type": "fixed"},
+        {"name": "麥味登鮮奶茶 (杯)", "val": 25.0, "type": "fixed"},
+        {"name": "全糖飲料 (係數 0.1)", "val": 0.1, "type": "ratio"},
+        {"name": "招牌麵線羹 (係數 0.125)", "val": 0.125, "type": "ratio"},
+        {"name": "學校營養午餐-飯 (係數 0.42)", "val": 0.42, "type": "ratio"},
+        {"name": "學校營養午餐-飯 (g)", "val": 61.74, "type": "fixed"},
+        {"name": "學校營養午餐-麵 (係數 0.26)", "val": 0.26, "type": "ratio"},
+        {"name": "義大利麵(熟) (係數 0.25)", "val": 0.25, "type": "ratio"},
+        {"name": "烏龍麵 (係數 0.28)", "val": 0.28, "type": "ratio"},
+        {"name": "白飯 (係數 0.375)", "val": 0.375, "type": "ratio"},
+        {"name": "便當 (個)", "val": 70.0, "type": "fixed"},
+        {"name": "蘋果/水梨 (係數 0.12)", "val": 0.12, "type": "ratio"},
+        {"name": "香蕉 (係數 0.24)", "val": 0.24, "type": "ratio"},
+        {"name": "牛奶 (係數 0.05)", "val": 0.05, "type": "ratio"},
+        {"name": "麵包 (係數 0.5)", "val": 0.5, "type": "ratio"},
+        {"name": "85度C甜甜圈 (個)", "val": 37.0, "type": "fixed"},
+        {"name": "85度C牛奶吐司 (片)", "val": 22.0, "type": "fixed"},
+        {"name": "85度C火腿起司三明治 (個)", "val": 35.0, "type": "fixed"},
+        {"name": "日安鹽可頌 (個)", "val": 34.72, "type": "fixed"},
+        {"name": "菠蘿麵包 (個)", "val": 43.4, "type": "fixed"},
+        {"name": "全聯奶香包 (個)", "val": 17.16, "type": "fixed"},
+        {"name": "雞蛋糕 (顆)", "val": 12.0, "type": "fixed"},
+        {"name": "KitKat麥片 (係數 0.7)", "val": 0.7, "type": "ratio"},
+        {"name": "起司片 (係數 0.4)", "val": 0.4, "type": "ratio"},
+        {"name": "Nutella (匙)", "val": 9.1, "type": "fixed"},
+        {"name": "巧克力牛奶 (瓶)", "val": 17.2, "type": "fixed"},
+        {"name": "咖哩塊 (塊)", "val": 8.6, "type": "fixed"},
+        {"name": "漢堡排(牛) (片)", "val": 3.1, "type": "fixed"},
+        {"name": "漢堡排(豬) (片)", "val": 8.0, "type": "fixed"},
+        {"name": "奶酪 (個)", "val": 15.1, "type": "fixed"},
+        {"name": "布丁/黑糖奶酪 (個)", "val": 18.7, "type": "fixed"},
+        {"name": "香吉士 (係數 0.11)", "val": 0.11, "type": "ratio"},
+        {"name": "奇異果 (係數 0.15)", "val": 0.15, "type": "ratio"},
+        {"name": "西瓜 (係數 0.08)", "val": 0.08, "type": "ratio"},
+        {"name": "纖穀脆 (係數 0.65)", "val": 0.65, "type": "ratio"},
+        {"name": "水餃-八方雲集 (顆)", "val": 5.3, "type": "fixed"},
+        {"name": "鍋貼-八方雲集 (顆)", "val": 5.6, "type": "fixed"},
+        {"name": "蜂蜜水 (係數 0.71)", "val": 0.71, "type": "ratio"},
+        {"name": "舒跑 (係數 0.1)", "val": 0.1, "type": "ratio"},
+        {"name": "香蕉牛奶 (罐)", "val": 21.0, "type": "fixed"},
+        {"name": "鮮奶泡芙 (個)", "val": 8.8, "type": "fixed"},
+        {"name": "冰淇淋 (係數 0.2)", "val": 0.2, "type": "ratio"},
+        {"name": "牛奶巧克力 (係數 0.56)", "val": 0.56, "type": "ratio"},
+        {"name": "玉米粒+馬鈴薯 (係數 0.17)", "val": 0.17, "type": "ratio"},
+        {"name": "鮮肉包 (個)", "val": 38.5, "type": "fixed"},
+        {"name": "鮮肉包 (係數 0.37)", "val": 0.37, "type": "ratio"},
+        {"name": "饅頭 (個)", "val": 50.0, "type": "fixed"},
+        {"name": "饅頭 (係數 0.51)", "val": 0.51, "type": "ratio"},
+        {"name": "烏龍麵 (係數 0.32)", "val": 0.32, "type": "ratio"},
+        {"name": "炒飯/油飯 (係數 0.45)", "val": 0.45, "type": "ratio"},
+        {"name": "炒麵 (係數 0.5364)", "val": 0.5364, "type": "ratio"},
+        {"name": "起司 (係數 0.013)", "val": 0.013, "type": "ratio"},
+        {"name": "馬鈴薯泥 (係數 0.16)", "val": 0.16, "type": "ratio"},
+        {"name": "馬鈴薯泥+起司 (係數 0.17)", "val": 0.17, "type": "ratio"},
+        {"name": "地瓜薯條 (係數 0.19)", "val": 0.19, "type": "ratio"},
+        {"name": "蘿蔔糕 (係數 0.25)", "val": 0.25, "type": "ratio"},
+        {"name": "露易莎-鮪魚玉米磚壓 (個)", "val": 56.0, "type": "fixed"},
+        {"name": "露易莎-日式燒肉堡 (個)", "val": 30.0, "type": "fixed"},
+        {"name": "國寶青茶(中杯半糖) (杯)", "val": 15.0, "type": "fixed"},
+        {"name": "露易莎-泰勒伯爵鮮奶茶(中杯全糖) (杯)", "val": 25.5, "type": "fixed"},
+        {"name": "露易莎-泰式鮮奶茶(中杯全糖) (杯)", "val": 20.4, "type": "fixed"},
+        {"name": "鮪魚/玉米蛋餅 (係數 0.28)", "val": 0.28, "type": "ratio"},
+        {"name": "炸雞排 (係數 0.25)", "val": 0.25, "type": "ratio"},
+        {"name": "德音炸甜不辣 (係數 0.2)", "val": 0.2, "type": "ratio"},
+        {"name": "薯條 (係數 0.28)", "val": 0.28, "type": "ratio"},
+        {"name": "麥當勞-玉米濃湯(小) (杯)", "val": 17.0, "type": "fixed"},
+        {"name": "麥當勞-玉米濃湯(大) (杯)", "val": 25.0, "type": "fixed"},
+        {"name": "麥當勞-薯條(中) (份)", "val": 37.0, "type": "fixed"},
+        {"name": "麥當勞-薯條(大) (份)", "val": 53.0, "type": "fixed"},
+        {"name": "麥當勞-檸檬紅茶(小) (杯)", "val": 28.0, "type": "fixed"},
+        {"name": "麥當勞-奶茶 (杯)", "val": 36.0, "type": "fixed"},
+        {"name": "麥當勞-麥脆雞腿 (個)", "val": 15.0, "type": "fixed"},
+        {"name": "麥當勞-麥克雞塊 (個)", "val": 2.5, "type": "fixed"},
+        {"name": "橘子 (係數 0.1)", "val": 0.1, "type": "ratio"},
+        {"name": "葡萄 (係數 0.12)", "val": 0.12, "type": "ratio"},
+        {"name": "小玉西瓜 (係數 0.07)", "val": 0.07, "type": "ratio"},
+        {"name": "毛豆 (係數 0.13)", "val": 0.13, "type": "ratio"},
+        {"name": "北海道的戀人 (包)", "val": 8.3, "type": "fixed"},
+        {"name": "小湯包 (顆)", "val": 5.0, "type": "fixed"},
+        {"name": "小籠包 (顆)", "val": 3.3, "type": "fixed"},
+        {"name": "黃金流沙包 (顆)", "val": 18.6, "type": "fixed"},
+        {"name": "奶油蛋糕 (係數 0.3)", "val": 0.3, "type": "ratio"},
+        {"name": "蛋糕體 (係數 0.35)", "val": 0.35, "type": "ratio"},
+        {"name": "蜂蜜蛋糕 (係數 0.45)", "val": 0.45, "type": "ratio"},
+        {"name": "美式鬆餅 (係數 0.29)", "val": 0.29, "type": "ratio"},
+        {"name": "格子鬆餅 (係數 0.4)", "val": 0.4, "type": "ratio"},
+        {"name": "蛋撻 (係數 0.35)", "val": 0.35, "type": "ratio"},
+        {"name": "奶油車輪餅 (係數 0.35)", "val": 0.35, "type": "ratio"},
+        {"name": "鮮奶泡芙 (係數 0.3)", "val": 0.3, "type": "ratio"},
+        {"name": "爭鮮-握壽司/軍艦 (個)", "val": 7.0, "type": "fixed"},
+        {"name": "玉米軍艦 (個)", "val": 8.6, "type": "fixed"},
+        {"name": "豆皮壽司 (個)", "val": 13.2, "type": "fixed"},
+        {"name": "白飯 (半碗)", "val": 30.0, "type": "fixed"},
+        {"name": "白飯 (3/4碗)", "val": 45.0, "type": "fixed"},
+        {"name": "油麵/烏龍麵(含水多) (半碗)", "val": 15.0, "type": "fixed"},
+        {"name": "義大利麵/陽春麵(含水少) (半碗)", "val": 30.0, "type": "fixed"},
+        {"name": "麵包(空氣感) (一個拳頭)", "val": 15.0, "type": "fixed"},
+        {"name": "麵包(扎實感) (一個拳頭)", "val": 30.0, "type": "fixed"},
+        {"name": "吐司 (一片)", "val": 15.0, "type": "fixed"},
+        {"name": "吐司 (兩片)", "val": 30.0, "type": "fixed"},
+        {"name": "香蕉 (一根)", "val": 30.0, "type": "fixed"},
+        {"name": "香蕉 (半根)", "val": 15.0, "type": "fixed"},
+        {"name": "蘋果/橘子/梨子 (一顆/一碗)", "val": 15.0, "type": "fixed"},
+        {"name": "蘋果/橘子/梨子 (半顆)", "val": 7.5, "type": "fixed"},
+        {"name": "葡萄/荔枝 (7顆)", "val": 15.0, "type": "fixed"},
+        {"name": "牛奶 (200g)", "val": 10.0, "type": "fixed"},
+        {"name": "牛奶 (300g)", "val": 15.0, "type": "fixed"},
+        {"name": "牛奶 (400g)", "val": 20.0, "type": "fixed"},
+        {"name": "麥片 (一碗)", "val": 35.0, "type": "fixed"},
+        {"name": "餃子皮 (三張)", "val": 15.0, "type": "fixed"},
+        {"name": "餃子皮 (九張)", "val": 45.0, "type": "fixed"},
+        {"name": "蛋餅皮 (半張)", "val": 15.0, "type": "fixed"},
+        {"name": "蛋餅皮 (一張)", "val": 30.0, "type": "fixed"},
+        {"name": "饅頭 (1/3顆)", "val": 15.0, "type": "fixed"},
+        {"name": "饅頭 (半顆)", "val": 22.5, "type": "fixed"},
+        {"name": "饅頭 (一顆)", "val": 45.0, "type": "fixed"},
+        {"name": "玉米粒 (一湯匙)", "val": 15.0, "type": "fixed"},
+        {"name": "漢堡麵包 (一半)", "val": 15.0, "type": "fixed"},
+        {"name": "漢堡麵包 (一個)", "val": 30.0, "type": "fixed"},
+        {"name": "蘇打餅乾 (5片/包)", "val": 15.0, "type": "fixed"},
+        {"name": "馬鈴薯 (半顆)", "val": 15.0, "type": "fixed"}
+    ];
 
-    const rawFoodList = [{"name": "油脂+蛋白質\n(2小時後加打) (係數 0.3)", "val": 0.3, "type": "ratio"}, {"name": "玉米一條 (根)", "val": 22.5, "type": "fixed"}, {"name": "麥味登鮮奶茶 (杯)", "val": 25.0, "type": "fixed"}, {"name": "全糖飲料 (係數 0.1)", "val": 0.1, "type": "ratio"}, {"name": "招牌麵線羹 (係數 0.125)", "val": 0.125, "type": "ratio"}, {"name": "學校營養午餐-飯 (係數 0.42)", "val": 0.42, "type": "ratio"}, {"name": "學校營養午餐-飯 (g)", "val": 61.74, "type": "fixed"}, {"name": "學校營養午餐-麵 (係數 0.26)", "val": 0.26, "type": "ratio"}, {"name": "義大利麵(熟) (係數 0.25)", "val": 0.25, "type": "ratio"}, {"name": "烏龍麵 (係數 0.28)", "val": 0.28, "type": "ratio"}, {"name": "白飯 (係數 0.375)", "val": 0.375, "type": "ratio"}, {"name": "便當 (個)", "val": 70.0, "type": "fixed"}, {"name": "蘋果/水梨 (係數 0.12)", "val": 0.12, "type": "ratio"}, {"name": "香蕉 (係數 0.24)", "val": 0.24, "type": "ratio"}, {"name": "牛奶 (係數 0.05)", "val": 0.05, "type": "ratio"}, {"name": "麵包 (係數 0.5)", "val": 0.5, "type": "ratio"}, {"name": "85度C甜甜圈 (個)", "val": 37.0, "type": "fixed"}, {"name": "85度C牛奶吐司 (片)", "val": 22.0, "type": "fixed"}, {"name": "85度C火腿起司三明治 (個)", "val": 35.0, "type": "fixed"}, {"name": "日安鹽可頌 (個)", "val": 34.72, "type": "fixed"}, {"name": "菠蘿麵包 (個)", "val": 43.4, "type": "fixed"}, {"name": "全聯奶香包 (個)", "val": 17.16, "type": "fixed"}, {"name": "雞蛋糕 (顆)", "val": 12.0, "type": "fixed"}, {"name": "KitKat麥片 (係數 0.7)", "val": 0.7, "type": "ratio"}, {"name": "起司片 (係數 0.4)", "val": 0.4, "type": "ratio"}, {"name": "Nutella (匙)", "val": 9.1, "type": "fixed"}, {"name": "巧克力牛奶 (瓶)", "val": 17.2, "type": "fixed"}, {"name": "咖哩塊 (塊)", "val": 8.6, "type": "fixed"}, {"name": "漢堡排(牛) (片)", "val": 3.1, "type": "fixed"}, {"name": "漢堡排(豬) (片)", "val": 8.0, "type": "fixed"}, {"name": "奶酪 (個)", "val": 15.1, "type": "fixed"}, {"name": "布丁/黑糖奶酪 (個)", "val": 18.7, "type": "fixed"}, {"name": "香吉士 (係數 0.11)", "val": 0.11, "type": "ratio"}, {"name": "奇異果 (係數 0.15)", "val": 0.15, "type": "ratio"}, {"name": "西瓜 (係數 0.08)", "val": 0.08, "type": "ratio"}, {"name": "纖穀脆 (係數 0.65)", "val": 0.65, "type": "ratio"}, {"name": "水餃-八方雲集 (顆)", "val": 5.3, "type": "fixed"}, {"name": "鍋貼-八方雲集 (顆)", "val": 5.6, "type": "fixed"}, {"name": "蜂蜜水 (係數 0.71)", "val": 0.71, "type": "ratio"}, {"name": "舒跑 (係數 0.1)", "val": 0.1, "type": "ratio"}, {"name": "香蕉牛奶 (罐)", "val": 21.0, "type": "fixed"}, {"name": "鮮奶泡芙 (個)", "val": 8.8, "type": "fixed"}, {"name": "冰淇淋 (係數 0.2)", "val": 0.2, "type": "ratio"}, {"name": "牛奶巧克力 (係數 0.56)", "val": 0.56, "type": "ratio"}, {"name": "玉米粒+馬鈴薯 (係數 0.17)", "val": 0.17, "type": "ratio"}, {"name": "鮮肉包 (個)", "val": 38.5, "type": "fixed"}, {"name":
+    // 依據字首排序方便尋找
+    const fullFoodList = rawFoodList.sort((a,b) => a.name.localeCompare(b.name, 'zh-Hant'));
+
+    let currentMeal = [];
+    
+    // 確保頁面載入後才執行下拉選單的建立
+    window.onload = function() {
+        const picker = document.getElementById('foodPicker');
+        
+        fullFoodList.forEach((f, i) => {
+            let opt = document.createElement('option');
+            opt.value = i; opt.textContent = f.name;
+            picker.appendChild(opt);
+        });
+
+        picker.onchange = function() {
+            const item = fullFoodList[this.value];
+            document.getElementById('amtLabel').textContent = (item.type === 'ratio') ? "輸入重量 (公克 g)" : "輸入數量 (份/個)";
+            document.getElementById('foodAmt').value = (item.type === 'ratio') ? 100 : 1;
+        };
+    };
+
+    function addToMeal() {
+        const picker = document.getElementById('foodPicker');
+        const item = fullFoodList[picker.value];
+        const amt = parseFloat(document.getElementById('foodAmt').value);
+        if (isNaN(amt) || amt <= 0) return;
+        
+        const carb = (item.type === 'ratio') ? (amt * item.val) : (amt * item.val);
+        currentMeal.push({ name: item.name, amt: amt, unit: (item.type === 'ratio' ? 'g' : ''), carb: carb });
+        updateMealUI();
+    }
+
+    function removeFood(index) {
+        currentMeal.splice(index, 1);
+        updateMealUI();
+    }
+
+    function updateMealUI() {
+        const list = document.getElementById('mealList');
+        if (currentMeal.length === 0) { 
+            list.innerHTML = '<li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增食物</li>'; 
+            return; 
+        }
+        list.innerHTML = '';
+        currentMeal.forEach((f, i) => {
+            list.innerHTML += `<li class="meal-item">
+                <span>${f.name} x${f.amt}${f.unit} <br><span style="color:#7f8c8d; font-size:0.8rem;">(${f.carb.toFixed(1)}g 碳)</span></span>
+                <button class="btn-del" onclick="removeFood(${i})">刪除</button>
+            </li>`;
+        });
+    }
+
+    function calculate() {
+        const bg = parseFloat(document.getElementById('curBG').value);
+        const target = parseFloat(document.getElementById('tarBG').value);
+        const isf = parseFloat(document.getElementById('isfVal').value);
+        const ci = parseFloat(document.getElementById('ciVal').value);
+
+        if (isNaN(bg) || currentMeal.length === 0) { 
+            alert("請輸入當前血糖並至少新增一項食物！"); 
+            return; 
+        }
+
+        let totalCarbs = currentMeal.reduce((sum, f) => sum + f.carb, 0);
+        let correction = Math.max(0, (bg - target) / isf);
+        let foodDose = totalCarbs / ci;
+        let rawTotal = correction + foodDose;
+
+        // 【0.5進位邏輯】：四捨五入至最近的 0.5 單位
+        let roundedTotal = Math.round(rawTotal * 2) / 2;
+
+        document.getElementById('resCarb').innerText = totalCarbs.toFixed(1);
+        document.getElementById('resCorr').innerText = correction.toFixed(2);
+        document.getElementById('resFood').innerText = foodDose.toFixed(2);
+        document.getElementById('resRaw').innerText = rawTotal.toFixed(2);
+        document.getElementById('resTotal').innerText = roundedTotal.toFixed(1);
+        
+        let peak = bg + (totalCarbs * 4);
+        document.getElementById('peakHint').innerHTML = `💡 預估 1-2 小時後血糖升幅：+${(totalCarbs * 4).toFixed(0)} mg/dL<br><b>預測峰值血糖：約 ${peak.toFixed(0)} mg/dL</b>`;
+        
+        document.getElementById('resBox').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>
