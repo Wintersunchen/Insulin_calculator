@@ -2,67 +2,318 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>胰島素計算機</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>胰島素計算機 - 大耳狗主題</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b; --bg: #f4f6f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 10px; display: flex; justify-content: center; margin: 0; }
-        .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 15px; box-sizing: border-box; }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 15px; font-size: 1.3rem; }
-        .card { border: 1px solid #e1e8ed; border-radius: 8px; padding: 12px; margin-bottom: 15px; background: #fff; }
-        .card-title { font-weight: bold; font-size: 0.95rem; color: #34495e; margin-bottom: 10px; border-bottom: 2px solid #f0f3f5; padding-bottom: 5px; }
-        label { display: block; font-size: 0.85rem; margin-top: 5px; color: #7f8c8d; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccd1d9; border-radius: 6px; box-sizing: border-box; margin-bottom: 8px; font-size: 1rem; background: #fafbfc; }
-        .btn-add { background: var(--accent); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 1rem; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2); }
-        .meal-list { list-style: none; padding: 0; margin: 10px 0; border-top: 1px dashed #ccc; }
-        .meal-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
-        .btn-del { background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 0.85rem; }
-        .result-box { margin-top: 20px; padding: 15px; background: #fdfae6; border-radius: 8px; display: none; border-left: 5px solid #f39c12; }
-        .res-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1.05rem; }
-        .final-dose { color: var(--danger); font-size: 1.8rem; font-weight: bold; text-align: center; border-top: 2px solid #f1c40f; padding-top: 15px; margin-top: 10px; }
-        .raw-data { font-size: 0.8rem; color: #95a5a6; text-align: center; margin-top: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        :root { 
+            --primary: #86C4E8;      /* 大耳狗招牌寶寶藍 */
+            --primary-dark: #6AB3DD; /* 深一點的藍色(按鈕點擊) */
+            --accent: #FFB7C5;       /* 喜拿的粉嫩臉頰色 */
+            --danger: #FF9BAA;       /* 柔和的紅色 */
+            --bg-gradient: linear-gradient(135deg, #E6F3FF 0%, #FFFFFF 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #4A6572;    /* 柔和的深藍灰色取代純黑 */
+            --text-muted: #8AA4B1;
+            --border-color: #D6EAF8;
+        }
+
+        body { 
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            padding: 20px 15px; 
+            display: flex; 
+            justify-content: center; 
+            margin: 0; 
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 480px; 
+            padding-bottom: 40px;
+        }
+
+        /* 頂部標題與大耳狗裝飾 */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: float 4s ease-in-out infinite; /* 整體微微漂浮 */
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .header img {
+            width: 110px;
+            margin-bottom: -10px;
+            filter: drop-shadow(0 4px 6px rgba(134, 196, 232, 0.4));
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            color: var(--primary-dark);
+            margin: 0 0 8px 0;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-shadow: 2px 2px 0px #FFF, 0 4px 8px rgba(134, 196, 232, 0.3);
+        }
+        .header p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #6AB3DD;
+            background: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 2px dashed #D6EAF8;
+        }
+
+        /* 雲朵卡片設計 */
+        .card { 
+            background: var(--card-bg); 
+            border: 3px solid #FFF; 
+            border-radius: 28px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 12px 24px rgba(134, 196, 232, 0.15), inset 0 0 15px rgba(255,255,255,1); 
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title { 
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            color: var(--primary-dark); 
+            margin-bottom: 15px; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 圓潤輸入框 */
+        label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 700; }
+        
+        input, select { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border: 2px solid var(--border-color); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            margin-bottom: 12px; 
+            font-size: 16px; 
+            background: #FAFDFF; 
+            color: var(--text-main);
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            appearance: none; 
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238AA4B1%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat, repeat;
+            background-position: right 1em top 50%, 0 0;
+            background-size: .65em auto, 100%;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 5px rgba(134, 196, 232, 0.2);
+            background: #FFF;
+            transform: translateY(-2px);
+        }
+
+        .flex-row { display: flex; gap: 15px; }
+        .flex-row > div { flex: 1; }
+
+        /* 軟Q按鈕設計 */
+        .btn {
+            width: 100%;
+            border: none;
+            border-radius: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+        }
+
+        .btn:active { transform: scale(0.92); }
+
+        .btn-add { 
+            background: #FFF; 
+            color: var(--primary-dark); 
+            padding: 14px; 
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 10px rgba(134, 196, 232, 0.15);
+        }
+        .btn-add:hover { background: #F0F8FF; }
+
+        .btn-calc { 
+            background: var(--accent); 
+            color: white; 
+            padding: 18px; 
+            font-size: 1.25rem; 
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(255, 183, 197, 0.5), inset 0 -3px 0 rgba(0,0,0,0.1);
+            margin-top: 10px;
+            border-radius: 24px;
+        }
+        .btn-calc:hover { background: #FF9EAA; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(255, 183, 197, 0.6), inset 0 -3px 0 rgba(0,0,0,0.1); }
+
+        /* 清單設計 */
+        .meal-list { list-style: none; padding: 0; margin: 0; }
+        .meal-empty { color: var(--text-muted); text-align: center; font-size: 0.95rem; padding: 15px 0; font-weight: 600;}
+        .meal-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 14px 16px; 
+            background: #FFF;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            border: 2px dashed var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .meal-item:hover { border-color: var(--primary); background: #FAFDFF; }
+        .meal-info { display: flex; flex-direction: column; gap: 4px; }
+        .meal-name { font-weight: 700; color: var(--text-main); }
+        .meal-carb { font-size: 0.8rem; color: #6AB3DD; background: #E6F3FF; padding: 3px 10px; border-radius: 12px; display: inline-block; width: fit-content; font-weight: 700;}
+        
+        .btn-del { 
+            background: var(--border-color); 
+            color: var(--text-main); 
+            border: none; 
+            border-radius: 12px; 
+            padding: 8px 14px; 
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-del:hover { background: var(--danger); color: #FFF; }
+        .btn-del:active { transform: scale(0.9); }
+
+        /* 結果區塊 */
+        .result-box { 
+            margin-top: 25px; 
+            padding: 25px 20px; 
+            background: linear-gradient(180deg, #FFFFFF 0%, #F0F8FF 100%); 
+            border-radius: 28px; 
+            display: none; 
+            box-shadow: 0 15px 35px rgba(134, 196, 232, 0.25);
+            border: 4px solid #FFF;
+            position: relative;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; color: var(--text-muted); font-weight: 600;}
+        .res-row span:last-child { font-weight: 800; color: var(--primary-dark); font-family: 'Nunito', sans-serif;}
+        
+        .final-dose-container {
+            text-align: center;
+            margin: 20px 0 15px 0;
+            padding: 25px 0;
+            background: #FFF;
+            border-radius: 20px;
+            border: 2px dashed var(--primary);
+            box-shadow: 0 5px 15px rgba(134, 196, 232, 0.1);
+        }
+        .final-dose-label { font-size: 1.05rem; color: var(--primary-dark); margin-bottom: 5px; font-weight: 800;}
+        .final-dose { color: var(--accent); font-size: 3.5rem; font-weight: 800; font-family: 'Nunito', sans-serif; text-shadow: 2px 2px 0px rgba(255,183,197,0.3); }
+        .final-dose-unit { font-size: 1.5rem; font-weight: 700; color: var(--danger); }
+        
+        .raw-data { font-size: 0.85rem; color: #A9C2D0; text-align: center; margin-top: 8px; font-weight: 600;}
+        .peak-hint { font-size: 0.9rem; color: var(--text-main); margin-top: 20px; text-align: center; line-height: 1.6; background: rgba(255,255,255,0.8); padding: 15px; border-radius: 16px; font-weight: 600;}
+
+        /* 進階設定 */
+        details { margin-top: 25px; background: rgba(255,255,255,0.7); padding: 18px; border-radius: 20px; border: 2px solid #FFF;}
+        summary { font-size: 0.95rem; color: var(--primary-dark); font-weight: 800; text-align: center; cursor: pointer; outline: none; }
+        .settings-row { display: flex; gap: 15px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>胰島素計算機 <br><span style="font-size: 0.8rem; color: #7f8c8d;">(補針置頂 · 0.5單位進位)</span></h2>
+    <div class="header">
+        <img src="https://media.tenor.com/QJ6Ks-R2lAYAAAAj/cinnamon-roll.gif" alt="Cinnamoroll" onerror="this.style.display='none'; document.getElementById('emoji-fallback').style.display='block';">
+        <div id="emoji-fallback" style="display:none; font-size: 4rem; margin-bottom: -10px;">☁️🐶☁️</div>
+        
+        <h1>胰島素計算機</h1>
+        <p>☁️ 喜拿陪伴版 · 0.5單位進位 ☁️</p>
+    </div>
 
     <div class="card">
-        <div class="card-title">🩸 血糖數據</div>
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;"><label>現時血糖</label><input type="number" id="curBG" placeholder="mg/dL" inputmode="numeric"></div>
-            <div style="flex: 1;"><label>目標血糖</label><input type="number" id="tarBG" value="100" inputmode="numeric"></div>
+        <div class="card-title">💙 血糖數值</div>
+        <div class="flex-row">
+            <div>
+                <label>現時血糖 (mg/dL)</label>
+                <input type="number" id="curBG" placeholder="例：150" inputmode="numeric">
+            </div>
+            <div>
+                <label>目標血糖</label>
+                <input type="number" id="tarBG" value="100" inputmode="numeric">
+            </div>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-title">🍱 食物清單 (複選)</div>
-        <label>選擇食物</label>
+        <div class="card-title">🍼 餐點清單 (可複選)</div>
+        <label>搜尋 / 選擇食物</label>
         <select id="foodPicker"></select>
+        
         <label id="amtLabel">輸入重量 (g)</label>
         <input type="number" id="foodAmt" value="1" inputmode="decimal">
-        <button class="btn-add" onclick="addToMeal()">＋ 加入餐點清單</button>
-        <ul id="mealList" class="meal-list"><li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增項目</li></ul>
+        
+        <button class="btn btn-add" onclick="addToMeal()">
+            🎀 加入本次餐點
+        </button>
+        
+        <ul id="mealList" class="meal-list"><li class="meal-empty">目前肚子空空的唷 ☁️</li></ul>
     </div>
 
-    <button class="btn-calc" onclick="calculate()">計算建議總量 (0.5進位)</button>
+    <button class="btn btn-calc" onclick="calculate()">
+        ☁️ 幫我計算建議劑量 ☁️
+    </button>
 
     <div id="resBox" class="result-box">
-        <div class="res-row"><span>總碳水攝取：</span><span id="resCarb">0</span> g</div>
-        <div class="res-row"><span>補打劑量：</span><span id="resCorr">0</span> U</div>
-        <div class="res-row"><span>食物劑量：</span><span id="resFood">0</span> U</div>
-        <div class="final-dose">建議施打：<span id="resTotal">0</span> U</div>
-        <div class="raw-data">未進位精確值：<span id="resRaw">0</span> U</div>
-        <div id="peakHint" style="font-size: 0.85rem; color: #7f8c8d; margin-top: 15px; text-align: center; line-height: 1.5;"></div>
+        <div class="res-row"><span>總碳水攝取</span><span id="resCarb">0.0 g</span></div>
+        <div class="res-row"><span>高血糖補打</span><span id="resCorr">0.00 U</span></div>
+        <div class="res-row"><span>食物需施打</span><span id="resFood">0.00 U</span></div>
+        
+        <div class="final-dose-container">
+            <div class="final-dose-label">✨ 建議施打總量 ✨</div>
+            <div class="final-dose"><span id="resTotal">0.0</span><span class="final-dose-unit"> U</span></div>
+        </div>
+        
+        <div class="raw-data">未進位精確值：<span id="resRaw">0.00</span> U</div>
+        <div id="peakHint" class="peak-hint"></div>
     </div>
 
-    <details style="margin-top: 20px; font-size: 0.85rem; color: #95a5a6; text-align: center;">
-        <summary>🔧 展開進階係數設定 (ISF/CI)</summary>
-        <div style="display: flex; gap: 10px; padding: 15px 0; justify-content: center;">
-            <div>ISF: <input type="number" id="isfVal" value="50" style="width: 80px; text-align: center;"></div>
-            <div>CI: <input type="number" id="ciVal" value="10" style="width: 80px; text-align: center;"></div>
+    <details>
+        <summary>⚙️ 展開進階係數設定 (ISF / CI)</summary>
+        <div class="settings-row">
+            <div><label>ISF 降糖係數</label><input type="number" id="isfVal" value="50"></div>
+            <div><label>CI 醣化係數</label><input type="number" id="ciVal" value="10"></div>
         </div>
     </details>
 </div>
@@ -194,7 +445,6 @@
         {"name": "馬鈴薯 (半顆)", "val": 15.0, "type": "fixed"}
     ];
 
-    // 排序邏輯：1.補針用最前 2.學校營養午餐其次 3.其餘依中文排序
     const fullFoodList = rawFoodList.sort((a, b) => {
         const isA_Correction = a.name.includes("補針用");
         const isB_Correction = b.name.includes("補針用");
@@ -203,7 +453,6 @@
         
         if (isA_Correction && !isB_Correction) return -1;
         if (!isA_Correction && isB_Correction) return 1;
-
         if (isA_School && !isB_School) return -1;
         if (!isA_School && isB_School) return 1;
         
@@ -220,11 +469,10 @@
             if (!f.name.includes("補針用") && !f.name.startsWith("學校營養午餐") && !addedDivider) {
                 let divider = document.createElement('option');
                 divider.disabled = true;
-                divider.textContent = "───────────";
+                divider.textContent = "☁️☁️☁️ 其他一般清單 ☁️☁️☁️";
                 picker.appendChild(divider);
                 addedDivider = true;
             }
-            
             let opt = document.createElement('option');
             opt.value = i; opt.textContent = f.name;
             picker.appendChild(opt);
@@ -235,10 +483,10 @@
             if(!item) return;
             
             if (item.name.includes("補針用")) {
-                document.getElementById('amtLabel').textContent = "輸入次數 (可輸入 1)";
+                document.getElementById('amtLabel').textContent = "輸入次數 (預設 1)";
                 document.getElementById('foodAmt').value = 1;
             } else {
-                document.getElementById('amtLabel').textContent = (item.type === 'ratio') ? "輸入重量 (公克 g)" : "輸入數量 (份/個)";
+                document.getElementById('amtLabel').textContent = (item.type === 'ratio') ? "輸入重量 (公克 g)" : "輸入數量 (份 / 個)";
                 document.getElementById('foodAmt').value = (item.type === 'ratio') ? 100 : 1;
             }
         };
@@ -267,15 +515,18 @@
     function updateMealUI() {
         const list = document.getElementById('mealList');
         if (currentMeal.length === 0) { 
-            list.innerHTML = '<li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增項目</li>'; 
+            list.innerHTML = '<li class="meal-empty">目前肚子空空的唷 ☁️</li>'; 
             return; 
         }
         list.innerHTML = '';
         currentMeal.forEach((f, i) => {
-            let carbText = f.name.includes("補針用") ? "純補針" : `${f.carb.toFixed(1)}g 碳`;
+            let carbText = f.name.includes("補針用") ? "純降血糖" : `${f.carb.toFixed(1)} g 碳水`;
             list.innerHTML += `<li class="meal-item">
-                <span>${f.name} x${f.amt}${f.unit} <br><span style="color:#7f8c8d; font-size:0.8rem;">(${carbText})</span></span>
-                <button class="btn-del" onclick="removeFood(${i})">刪除</button>
+                <div class="meal-info">
+                    <span class="meal-name">${f.name} x ${f.amt}${f.unit}</span>
+                    <span class="meal-carb">${carbText}</span>
+                </div>
+                <button class="btn-del" onclick="removeFood(${i})">移除</button>
             </li>`;
         });
     }
@@ -287,7 +538,7 @@
         const ci = parseFloat(document.getElementById('ciVal').value);
 
         if (isNaN(bg) || currentMeal.length === 0) { 
-            alert("請輸入當前血糖並至少新增一項！"); 
+            alert("⚠️ 請輸入當前血糖，並至少新增一項食物或補針項目！"); 
             return; 
         }
 
@@ -298,18 +549,18 @@
 
         let roundedTotal = Math.round(rawTotal * 2) / 2;
 
-        document.getElementById('resCarb').innerText = totalCarbs.toFixed(1);
-        document.getElementById('resCorr').innerText = correction.toFixed(2);
-        document.getElementById('resFood').innerText = foodDose.toFixed(2);
+        document.getElementById('resCarb').innerText = `${totalCarbs.toFixed(1)} g`;
+        document.getElementById('resCorr').innerText = `${correction.toFixed(2)} U`;
+        document.getElementById('resFood').innerText = `${foodDose.toFixed(2)} U`;
         document.getElementById('resRaw').innerText = rawTotal.toFixed(2);
         document.getElementById('resTotal').innerText = roundedTotal.toFixed(1);
         
         let peak = bg + (totalCarbs * 4);
         
         if (totalCarbs === 0) {
-            document.getElementById('peakHint').innerHTML = `💡 此次為純降血糖施打，不計飲食碳水。`;
+            document.getElementById('peakHint').innerHTML = `💙 <b>純降糖施打</b><br>此次不計飲食碳水，僅做高血糖補償。`;
         } else {
-            document.getElementById('peakHint').innerHTML = `💡 預估 1-2 小時後血糖升幅：+${(totalCarbs * 4).toFixed(0)} mg/dL<br><b>預測峰值血糖：約 ${peak.toFixed(0)} mg/dL</b>`;
+            document.getElementById('peakHint').innerHTML = `☁️ <b>預估餐後血糖變化</b><br>碳水將使血糖上升約 <b>+${(totalCarbs * 4).toFixed(0)}</b> mg/dL<br>預測峰值約為：<b>${peak.toFixed(0)}</b> mg/dL`;
         }
         
         document.getElementById('resBox').style.display = 'block';
