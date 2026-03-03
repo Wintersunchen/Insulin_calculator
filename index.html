@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>胰島素計算器</title>
+    <title>胰島素計算機</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b; --bg: #f4f6f9; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 10px; display: flex; justify-content: center; margin: 0; }
@@ -27,7 +27,7 @@
 <body>
 
 <div class="container">
-    <h2>胰島素計算器 <br><span style="font-size: 0.8rem; color: #7f8c8d;"></span></h2>
+    <h2>胰島素計算機 <br><span style="font-size: 0.8rem; color: #7f8c8d;">(補針置頂 · 0.5單位進位)</span></h2>
 
     <div class="card">
         <div class="card-title">🩸 血糖數據</div>
@@ -42,9 +42,9 @@
         <label>選擇食物</label>
         <select id="foodPicker"></select>
         <label id="amtLabel">輸入重量 (g)</label>
-        <input type="number" id="foodAmt" value="100" inputmode="decimal">
+        <input type="number" id="foodAmt" value="1" inputmode="decimal">
         <button class="btn-add" onclick="addToMeal()">＋ 加入餐點清單</button>
-        <ul id="mealList" class="meal-list"><li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增食物</li></ul>
+        <ul id="mealList" class="meal-list"><li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增項目</li></ul>
     </div>
 
     <button class="btn-calc" onclick="calculate()">計算建議總量 (0.5進位)</button>
@@ -61,15 +61,15 @@
     <details style="margin-top: 20px; font-size: 0.85rem; color: #95a5a6; text-align: center;">
         <summary>🔧 展開進階係數設定 (ISF/CI)</summary>
         <div style="display: flex; gap: 10px; padding: 15px 0; justify-content: center;">
-            <div>ISF: <input type="number" id="isfVal" value="50" style="width: 80px; text-align: center;"></div>
-            <div>CI: <input type="number" id="ciVal" value="10" style="width: 80px; text-align: center;"></div>
+            <div>ISF: <input type="number" id="isfVal" value="60" style="width: 80px; text-align: center;"></div>
+            <div>CI: <input type="number" id="ciVal" value="14" style="width: 80px; text-align: center;"></div>
         </div>
     </details>
 </div>
 
 <script>
-    // 移除了文字中的所有換行符號，避免 JavaScript 錯誤
     const rawFoodList = [
+        {"name": "⭐ 補針用 (不計碳水)", "val": 0, "type": "fixed"}, 
         {"name": "油脂+蛋白質(2小時後加打) (係數 0.3)", "val": 0.3, "type": "ratio"},
         {"name": "玉米一條 (根)", "val": 22.5, "type": "fixed"},
         {"name": "麥味登鮮奶茶 (杯)", "val": 25.0, "type": "fixed"},
@@ -194,16 +194,37 @@
         {"name": "馬鈴薯 (半顆)", "val": 15.0, "type": "fixed"}
     ];
 
-    // 依據字首排序方便尋找
-    const fullFoodList = rawFoodList.sort((a,b) => a.name.localeCompare(b.name, 'zh-Hant'));
+    // 排序邏輯：1.補針用最前 2.學校營養午餐其次 3.其餘依中文排序
+    const fullFoodList = rawFoodList.sort((a, b) => {
+        const isA_Correction = a.name.includes("補針用");
+        const isB_Correction = b.name.includes("補針用");
+        const isA_School = a.name.startsWith("學校營養午餐");
+        const isB_School = b.name.startsWith("學校營養午餐");
+        
+        if (isA_Correction && !isB_Correction) return -1;
+        if (!isA_Correction && isB_Correction) return 1;
+
+        if (isA_School && !isB_School) return -1;
+        if (!isA_School && isB_School) return 1;
+        
+        return a.name.localeCompare(b.name, 'zh-Hant');
+    });
 
     let currentMeal = [];
     
-    // 確保頁面載入後才執行下拉選單的建立
     window.onload = function() {
         const picker = document.getElementById('foodPicker');
+        let addedDivider = false;
         
         fullFoodList.forEach((f, i) => {
+            if (!f.name.includes("補針用") && !f.name.startsWith("學校營養午餐") && !addedDivider) {
+                let divider = document.createElement('option');
+                divider.disabled = true;
+                divider.textContent = "───────────";
+                picker.appendChild(divider);
+                addedDivider = true;
+            }
+            
             let opt = document.createElement('option');
             opt.value = i; opt.textContent = f.name;
             picker.appendChild(opt);
@@ -211,19 +232,30 @@
 
         picker.onchange = function() {
             const item = fullFoodList[this.value];
-            document.getElementById('amtLabel').textContent = (item.type === 'ratio') ? "輸入重量 (公克 g)" : "輸入數量 (份/個)";
-            document.getElementById('foodAmt').value = (item.type === 'ratio') ? 100 : 1;
+            if(!item) return;
+            
+            if (item.name.includes("補針用")) {
+                document.getElementById('amtLabel').textContent = "輸入次數 (可輸入 1)";
+                document.getElementById('foodAmt').value = 1;
+            } else {
+                document.getElementById('amtLabel').textContent = (item.type === 'ratio') ? "輸入重量 (公克 g)" : "輸入數量 (份/個)";
+                document.getElementById('foodAmt').value = (item.type === 'ratio') ? 100 : 1;
+            }
         };
     };
 
     function addToMeal() {
         const picker = document.getElementById('foodPicker');
         const item = fullFoodList[picker.value];
+        if(!item) return;
+
         const amt = parseFloat(document.getElementById('foodAmt').value);
         if (isNaN(amt) || amt <= 0) return;
         
         const carb = (item.type === 'ratio') ? (amt * item.val) : (amt * item.val);
-        currentMeal.push({ name: item.name, amt: amt, unit: (item.type === 'ratio' ? 'g' : ''), carb: carb });
+        const unitDisplay = item.name.includes("補針用") ? "次" : (item.type === 'ratio' ? 'g' : '');
+        
+        currentMeal.push({ name: item.name, amt: amt, unit: unitDisplay, carb: carb });
         updateMealUI();
     }
 
@@ -235,13 +267,14 @@
     function updateMealUI() {
         const list = document.getElementById('mealList');
         if (currentMeal.length === 0) { 
-            list.innerHTML = '<li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增食物</li>'; 
+            list.innerHTML = '<li style="color: #bdc3c7; text-align: center; font-size: 0.9rem;">尚未新增項目</li>'; 
             return; 
         }
         list.innerHTML = '';
         currentMeal.forEach((f, i) => {
+            let carbText = f.name.includes("補針用") ? "純補針" : `${f.carb.toFixed(1)}g 碳`;
             list.innerHTML += `<li class="meal-item">
-                <span>${f.name} x${f.amt}${f.unit} <br><span style="color:#7f8c8d; font-size:0.8rem;">(${f.carb.toFixed(1)}g 碳)</span></span>
+                <span>${f.name} x${f.amt}${f.unit} <br><span style="color:#7f8c8d; font-size:0.8rem;">(${carbText})</span></span>
                 <button class="btn-del" onclick="removeFood(${i})">刪除</button>
             </li>`;
         });
@@ -254,7 +287,7 @@
         const ci = parseFloat(document.getElementById('ciVal').value);
 
         if (isNaN(bg) || currentMeal.length === 0) { 
-            alert("請輸入當前血糖並至少新增一項食物！"); 
+            alert("請輸入當前血糖並至少新增一項！"); 
             return; 
         }
 
@@ -263,7 +296,6 @@
         let foodDose = totalCarbs / ci;
         let rawTotal = correction + foodDose;
 
-        // 【0.5進位邏輯】：四捨五入至最近的 0.5 單位
         let roundedTotal = Math.round(rawTotal * 2) / 2;
 
         document.getElementById('resCarb').innerText = totalCarbs.toFixed(1);
@@ -273,7 +305,12 @@
         document.getElementById('resTotal').innerText = roundedTotal.toFixed(1);
         
         let peak = bg + (totalCarbs * 4);
-        document.getElementById('peakHint').innerHTML = `💡 預估 1-2 小時後血糖升幅：+${(totalCarbs * 4).toFixed(0)} mg/dL<br><b>預測峰值血糖：約 ${peak.toFixed(0)} mg/dL</b>`;
+        
+        if (totalCarbs === 0) {
+            document.getElementById('peakHint').innerHTML = `💡 此次為純降血糖施打，不計飲食碳水。`;
+        } else {
+            document.getElementById('peakHint').innerHTML = `💡 預估 1-2 小時後血糖升幅：+${(totalCarbs * 4).toFixed(0)} mg/dL<br><b>預測峰值血糖：約 ${peak.toFixed(0)} mg/dL</b>`;
+        }
         
         document.getElementById('resBox').style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
